@@ -1,4 +1,4 @@
 sick-fits/backend/node_modules
 sick-fits/frontend/node_modules
 .DS_Store
-sick-fits/backend/variables.env
+sick-fits/backend/.env
