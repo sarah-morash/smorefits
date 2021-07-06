@@ -1,0 +1,1 @@
+{"ast":null,"code":"export { default } from './products/index.js';","map":{"version":3,"sources":["/Users/smorash/Develop/Personal/smorefits/frontend/pages/index.js"],"names":["default"],"mappings":"AAAA,SAASA,OAAT,QAAwB,qBAAxB","sourcesContent":["export { default } from './products/index.js';\n"]},"metadata":{},"sourceType":"module"}

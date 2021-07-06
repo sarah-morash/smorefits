@@ -5,8 +5,17 @@ import {
   withItemData,
   statelessSessions,
 } from '@keystone-next/keystone/session';
+import { extendGraphqlSchema } from './mutations/index';
 
-import { user } from './schemas/User';
+import { User } from './schemas/User';
+import { Product } from './schemas/Product';
+import { ProductImage } from './schemas/ProductImage';
+import { CartItem } from './schemas/CartItem';
+import { OrderItem } from './schemas/OrderItem';
+import { Order } from './schemas/Order';
+
+import { insertSeedData } from './seed-data';
+import { sendPasswordResetEmail } from './lib/mail';
 
 const databaseURL =
   process.env.DATABASE_URL || 'mongodb://localhost/keystone-sick-fits-tutorial';
@@ -23,6 +32,12 @@ const { withAuth } = createAuth({
   initFirstItem: {
     fields: ['name', 'email', 'password'],
   },
+  passwordResetLink: {
+    async sendToken(args) {
+      console.log(args);
+      await sendPasswordResetEmail(args.token, args.identity);
+    },
+  },
 });
 
 export default withAuth(
@@ -36,13 +51,26 @@ export default withAuth(
     db: {
       adapter: 'mongoose',
       url: databaseURL,
+      onConnect: async (keystone) => {
+        console.info('CONNECTED');
+        if (process.argv.includes('--seed-data')) {
+          await insertSeedData(keystone);
+        }
+      },
     },
     lists: createSchema({
-      User: user,
+      User,
+      Product,
+      ProductImage,
+      CartItem,
+      OrderItem,
+      Order,
     }),
+    extendGraphqlSchema,
     ui: {
       isAccessAllowed: ({ session }) => {
         console.log(session);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
         return !!session?.data;
       },
     },

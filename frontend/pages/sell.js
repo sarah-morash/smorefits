@@ -1,6 +1,8 @@
+import CreateProduct from '../components/CreateProduct';
+
 const Sell = () => (
   <div>
-    <p>Sell!</p>
+    <CreateProduct />
   </div>
 );
 
