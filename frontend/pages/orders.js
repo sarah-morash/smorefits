@@ -12,7 +12,7 @@ const USER_ORDERS_QUERY = gql`
   query USER_ORDERS_QUERY {
     allOrders {
       id
-      charge
+      charges
       total
       user {
         id

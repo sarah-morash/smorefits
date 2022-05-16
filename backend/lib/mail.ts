@@ -1,5 +1,35 @@
 import { createTransport, getTestMessageUrl } from 'nodemailer';
 
+const transport = createTransport({
+  host: process.env.MAIL_HOST,
+  port: process.env.MAIL_PORT,
+  auth: {
+    user: process.env.MAIL_USER,
+    pass: process.env.MAIL_PASS,
+  },
+});
+
+function makeANiceEmail(text: string) {
+  return `
+    <div className="email" style="
+      border: 1px solid black;
+      padding: 20px;
+      font-family: sans-serif;
+      line-height: 2;
+      font-size: 20px;
+    ">
+      <h2>Hello There!</h2>
+      <p>${text}</p>
+      <p>😘, Wes Bos</p>
+    </div>
+  `;
+}
+
+export interface Envelope {
+  from: string;
+  to?: string[] | null;
+}
+
 export interface MailResponse {
   accepted?: string[] | null;
   rejected?: null[] | null;
@@ -11,42 +41,20 @@ export interface MailResponse {
   messageId: string;
 }
 
-export interface Envelope {
-  from: string;
-  to?: string[] | null;
-}
-
-const transport = createTransport({
-  host: process.env.MAIL_HOST,
-  port: process.env.MAIL_PORT,
-  auth: {
-    user: process.env.MAIL_USER,
-    pass: process.env.MAIL_PASS,
-  },
-});
-
-const emailTemplate = (text: string): string =>
-  `<div style="border: 1px solid black; padding: 20px; font-family: sans-serif; line-height: 2; font-size: 20px;">
-    <h2>Hello There!</h2>
-    <p>${text}</p>
-    <p>😘, Sarah</p>
-  </div>`;
-
-export const sendPasswordResetEmail = async (
+export async function sendPasswordResetEmail(
   resetToken: string,
   to: string
-): Promise<void> => {
+): Promise<void> {
+  // email the user a token
   const info = (await transport.sendMail({
     to,
-    from: 'sarah.morash@outlook.com',
-    subject: 'Your password reset token',
-    html: emailTemplate(
-      `Your password token is here! <a href="${process.env.FRONTEND_URL}/reset?token${resetToken}">Click here to reset</a>`
-    ),
+    from: 'wes@wesbos.com',
+    subject: 'Your password reset token!',
+    html: makeANiceEmail(`Your Password Reset Token is here!
+      <a href="${process.env.FRONTEND_URL}/reset?token=${resetToken}">Click Here to reset</a>
+    `),
   })) as MailResponse;
-
   if (process.env.MAIL_USER.includes('ethereal.email')) {
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     console.log(`💌 Message Sent!  Preview it at ${getTestMessageUrl(info)}`);
   }
-};
+}
